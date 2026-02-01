@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple & Sinister Tracker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&display=swap');
+    
+    :root {
+      --primary: #FF4500;
+      --secondary: #1a1a1a;
+      --accent: #FFD700;
+      --bg: #0a0a0a;
+      --surface: #1a1a1a;
+      --text: #ffffff;
+      --text-dim: #999999;
+      --success: #00ff88;
+      --border: #333333;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Roboto Condensed', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(255, 69, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid var(--primary);
+      position: relative;
+    }
+    
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      animation: slideDown 0.6s ease-out;
+    }
+    
+    .subtitle {
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 0.9rem;
+    }
+    
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+      animation: fadeIn 0.8s ease-out 0.2s both;
+    }
+    
+    .stat-card {
+      background: var(--surface);
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+      transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 69, 0, 0.2);
+    }
+    
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      margin-bottom: 5px;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .workout-section {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      animation: slideUp 0.6s ease-out both;
+    }
+    
+    .workout-section:nth-child(2) { animation-delay: 0.1s; }
+    .workout-section:nth-child(3) { animation-delay: 0.2s; }
+    .workout-section:nth-child(4) { animation-delay: 0.3s; }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--border);
+    }
+    
+    .section-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+    }
+    
+    .exercise-group {
+      margin-bottom: 20px;
+    }
+    
+    .exercise-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .set-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .set-item {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    
+    .set-item.completed {
+      background: rgba(0, 255, 136, 0.1);
+      border-color: var(--success);
+    }
+    
+    .set-item label {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      margin-bottom: 5px;
+    }
+    
+    .set-item input[type="number"],
+    .set-item select {
+      width: 100%;
+      padding: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: 'Roboto Condensed', sans-serif;
+    }
+    
+    .set-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: var(--success);
+    }
+    
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 8px;
+    }
+    
+    .warmup-item, .cooldown-item {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    
+    .warmup-item.completed, .cooldown-item.completed {
+      background: rgba(0, 255, 136, 0.1);
+      border-color: var(--success);
+    }
+    
+    .warmup-item input, .cooldown-item input {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: var(--success);
+    }
+    
+    .warmup-item label, .cooldown-item label {
+      flex: 1;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    
+    button {
+      flex: 1;
+      padding: 15px 30px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #ff6b35);
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 69, 0, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(255, 69, 0, 0.4);
+    }
+    
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    
+    .history {
+      margin-top: 40px;
+      animation: fadeIn 1s ease-out 0.5s both;
+    }
+    
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .history-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 2px;
+    }
+    
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .history-item {
+      background: var(--surface);
+      padding: 15px 20px;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    
+    .history-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 15px rgba(255, 69, 0, 0.2);
+    }
+    
+    .history-date {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+    }
+    
+    .history-score {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .no-history {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--success);
+      color: var(--bg);
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(0, 255, 136, 0.4);
+      animation: toastIn 0.3s ease-out;
+      z-index: 1000;
+    }
+    
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Simple & Sinister</h1>
+      <div class="subtitle">Kettlebell Progress Tracker</div>
+    </header>
+    
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">Total Workouts</div>
+        <div class="stat-value" id="totalWorkouts">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Average Score</div>
+        <div class="stat-value" id="avgScore">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Best Score</div>
+        <div class="stat-value" id="bestScore">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Current Streak</div>
+        <div class="stat-value" id="currentStreak">0</div>
+      </div>
+    </div>
+    
+    <div class="workout-section">
+      <div class="section-header">
+        <div class="section-icon">🔥</div>
+        <h2 class="section-title">Warmup</h2>
+      </div>
+      <div id="warmupList"></div>
+    </div>
+    
+    <div class="workout-section">
+      <div class="section-header">
+        <div class="section-icon">💪</div>
+        <h2 class="section-title">Swings</h2>
+      </div>
+      <div id="swingsList"></div>
+    </div>
+    
+    <div class="workout-section">
+      <div class="section-header">
+        <div class="section-icon">⬆️</div>
+        <h2 class="section-title">Get-Ups</h2>
+      </div>
+      <div id="getUpsList"></div>
+    </div>
+    
+    <div class="workout-section">
+      <div class="section-header">
+        <div class="section-icon">🧘</div>
+        <h2 class="section-title">Cooldown</h2>
+      </div>
+      <div id="cooldownList"></div>
+    </div>
+    
+    <div class="action-buttons">
+      <button class="btn-primary" onclick="saveWorkout()">Complete Workout</button>
+      <button class="btn-secondary" onclick="resetWorkout()">Reset</button>
+    </div>
+    
+    <div class="history">
+      <div class="history-header">
+        <h2 class="history-title">Workout History</h2>
+        <button class="btn-secondary" onclick="clearHistory()" style="flex: 0 0 auto; padding: 10px 20px; font-size: 1rem;">Clear History</button>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+  </div>
+
+  <script>
+    const warmupExercises = [
+      'Prying Goblet Squat (5 reps)',
+      'Hip Bridge (5 reps)',
+      'Halo (5 each direction)',
+      'Deadlift (5 reps)',
+      'Swings (10 reps - light)'
+    ];
+    
+    const cooldownExercises = [
+      '90/90 Stretch (30 sec each side)',
+      'Bretzel Stretch (30 sec each side)',
+      'Cross-body Shoulder Stretch (30 sec each side)',
+      'Deep Squat Hold (1 min)'
+    ];
+    
+    const workoutData = {
+      warmup: warmupExercises.map(ex => ({ name: ex, completed: false })),
+      swings: Array(10).fill(null).map((_, i) => ({
+        set: i + 1,
+        weight: 24,
+        completed: false
+      })),
+      getUps: Array(10).fill(null).map((_, i) => ({
+        set: i + 1,
+        side: i % 2 === 0 ? 'L' : 'R',
+        weight: 16,
+        completed: false
+      })),
+      cooldown: cooldownExercises.map(ex => ({ name: ex, completed: false }))
+    };
+    
+    function renderWarmup() {
+      const container = document.getElementById('warmupList');
+      container.innerHTML = workoutData.warmup.map((item, idx) => `
+        <div class="warmup-item ${item.completed ? 'completed' : ''}">
+          <input type="checkbox" id="warmup-${idx}" ${item.completed ? 'checked' : ''} 
+                 onchange="toggleWarmup(${idx})">
+          <label for="warmup-${idx}">${item.name}</label>
+        </div>
+      `).join('');
+    }
+    
+    function renderSwings() {
+      const container = document.getElementById('swingsList');
+      container.innerHTML = '<div class="exercise-group"><div class="exercise-name">10 Sets x 10 Reps</div><div class="set-controls">' +
+        workoutData.swings.map((set, idx) => `
+          <div class="set-item ${set.completed ? 'completed' : ''}">
+            <label>Set ${set.set}</label>
+            <input type="number" value="${set.weight}" min="8" max="48" step="4"
+                   onchange="updateSwingWeight(${idx}, this.value)">
+            <label class="checkbox-label">
+              <input type="checkbox" ${set.completed ? 'checked' : ''}
+                     onchange="toggleSwingComplete(${idx})">
+              <span>Done</span>
+            </label>
+          </div>
+        `).join('') + '</div></div>';
+    }
+    
+    function renderGetUps() {
+      const container = document.getElementById('getUpsList');
+      container.innerHTML = '<div class="exercise-group"><div class="exercise-name">10 Get-Ups (5L / 5R)</div><div class="set-controls">' +
+        workoutData.getUps.map((set, idx) => `
+          <div class="set-item ${set.completed ? 'completed' : ''}">
+            <label>Set ${set.set} (${set.side})</label>
+            <input type="number" value="${set.weight}" min="8" max="48" step="4"
+                   onchange="updateGetUpWeight(${idx}, this.value)">
+            <label class="checkbox-label">
+              <input type="checkbox" ${set.completed ? 'checked' : ''}
+                     onchange="toggleGetUpComplete(${idx})">
+              <span>Done</span>
+            </label>
+          </div>
+        `).join('') + '</div></div>';
+    }
+    
+    function renderCooldown() {
+      const container = document.getElementById('cooldownList');
+      container.innerHTML = workoutData.cooldown.map((item, idx) => `
+        <div class="cooldown-item ${item.completed ? 'completed' : ''}">
+          <input type="checkbox" id="cooldown-${idx}" ${item.completed ? 'checked' : ''}
+                 onchange="toggleCooldown(${idx})">
+          <label for="cooldown-${idx}">${item.name}</label>
+        </div>
+      `).join('');
+    }
+    
+    function toggleWarmup(idx) {
+      workoutData.warmup[idx].completed = !workoutData.warmup[idx].completed;
+      renderWarmup();
+    }
+    
+    function toggleCooldown(idx) {
+      workoutData.cooldown[idx].completed = !workoutData.cooldown[idx].completed;
+      renderCooldown();
+    }
+    
+    function updateSwingWeight(idx, weight) {
+      workoutData.swings[idx].weight = parseInt(weight);
+    }
+    
+    function toggleSwingComplete(idx) {
+      workoutData.swings[idx].completed = !workoutData.swings[idx].completed;
+      renderSwings();
+    }
+    
+    function updateGetUpWeight(idx, weight) {
+      workoutData.getUps[idx].weight = parseInt(weight);
+    }
+    
+    function toggleGetUpComplete(idx) {
+      workoutData.getUps[idx].completed = !workoutData.getUps[idx].completed;
+      renderGetUps();
+    }
+    
+    function calculateScore() {
+      // Scoring system:
+      // Warmup: 10 points (2 per exercise)
+      // Swings: 50 points (5 per set, bonus for heavier weights)
+      // Get-ups: 50 points (5 per set, bonus for heavier weights)
+      // Cooldown: 10 points (2.5 per exercise)
+      
+      let score = 0;
+      
+      // Warmup score
+      score += workoutData.warmup.filter(w => w.completed).length * 2;
+      
+      // Swings score
+      workoutData.swings.forEach(swing => {
+        if (swing.completed) {
+          const baseScore = 5;
+          const weightBonus = (swing.weight - 16) / 4; // Bonus for heavier weights
+          score += baseScore + weightBonus;
+        }
+      });
+      
+      // Get-ups score
+      workoutData.getUps.forEach(getUp => {
+        if (getUp.completed) {
+          const baseScore = 5;
+          const weightBonus = (getUp.weight - 16) / 4;
+          score += baseScore + weightBonus;
+        }
+      });
+      
+      // Cooldown score
+      score += workoutData.cooldown.filter(c => c.completed).length * 2.5;
+      
+      return Math.round(score);
+    }
+    
+    async function saveWorkout() {
+      const score = calculateScore();
+      
+      const workout = {
+        date: new Date().toISOString(),
+        score: score,
+        warmup: workoutData.warmup,
+        swings: workoutData.swings,
+        getUps: workoutData.getUps,
+        cooldown: workoutData.cooldown
+      };
+      
+      try {
+        // Get existing workouts
+        const historyResult = await window.storage.list('workout:');
+        const workoutKeys = historyResult ? historyResult.keys : [];
+        
+        // Save new workout
+        const workoutId = Date.now();
+        await window.storage.set(`workout:${workoutId}`, JSON.stringify(workout));
+        
+        showToast(`Workout saved! Score: ${score}`);
+        resetWorkout();
+        await loadHistory();
+      } catch (error) {
+        console.error('Error saving workout:', error);
+        showToast('Error saving workout. Please try again.');
+      }
+    }
+    
+    function resetWorkout() {
+      workoutData.warmup.forEach(w => w.completed = false);
+      workoutData.swings.forEach(s => s.completed = false);
+      workoutData.getUps.forEach(g => g.completed = false);
+      workoutData.cooldown.forEach(c => c.completed = false);
+      
+      renderWarmup();
+      renderSwings();
+      renderGetUps();
+      renderCooldown();
+    }
+    
+    async function loadHistory() {
+      try {
+        const historyResult = await window.storage.list('workout:');
+        
+        if (!historyResult || !historyResult.keys || historyResult.keys.length === 0) {
+          document.getElementById('historyList').innerHTML = '<div class="no-history">No workouts yet. Complete your first session!</div>';
+          updateStats([]);
+          return;
+        }
+        
+        // Load all workouts
+        const workouts = [];
+        for (const key of historyResult.keys) {
+          try {
+            const result = await window.storage.get(key);
+            if (result && result.value) {
+              workouts.push(JSON.parse(result.value));
+            }
+          } catch (error) {
+            console.log('Skipping invalid workout:', key);
+          }
+        }
+        
+        // Sort by date descending
+        workouts.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        // Render history
+        const historyHTML = workouts.map(workout => {
+          const date = new Date(workout.date);
+          const dateStr = date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric' 
+          });
+          
+          return `
+            <div class="history-item">
+              <div class="history-date">${dateStr}</div>
+              <div class="history-score">${workout.score}</div>
+            </div>
+          `;
+        }).join('');
+        
+        document.getElementById('historyList').innerHTML = historyHTML || '<div class="no-history">No workouts yet. Complete your first session!</div>';
+        
+        updateStats(workouts);
+      } catch (error) {
+        console.error('Error loading history:', error);
+        document.getElementById('historyList').innerHTML = '<div class="no-history">No workouts yet. Complete your first session!</div>';
+        updateStats([]);
+      }
+    }
+    
+    function updateStats(workouts) {
+      const totalWorkouts = workouts.length;
+      const scores = workouts.map(w => w.score);
+      const avgScore = totalWorkouts > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / totalWorkouts) : 0;
+      const bestScore = totalWorkouts > 0 ? Math.max(...scores) : 0;
+      
+      // Calculate streak (consecutive days with workouts)
+      let streak = 0;
+      if (workouts.length > 0) {
+        const sortedDates = workouts.map(w => new Date(w.date).toDateString()).sort((a, b) => new Date(b) - new Date(a));
+        const today = new Date().toDateString();
+        
+        if (sortedDates[0] === today || sortedDates[0] === new Date(Date.now() - 86400000).toDateString()) {
+          streak = 1;
+          for (let i = 1; i < sortedDates.length; i++) {
+            const prevDate = new Date(sortedDates[i - 1]);
+            const currDate = new Date(sortedDates[i]);
+            const diffDays = Math.floor((prevDate - currDate) / 86400000);
+            
+            if (diffDays === 1) {
+              streak++;
+            } else {
+              break;
+            }
+          }
+        }
+      }
+      
+      document.getElementById('totalWorkouts').textContent = totalWorkouts;
+      document.getElementById('avgScore').textContent = avgScore;
+      document.getElementById('bestScore').textContent = bestScore;
+      document.getElementById('currentStreak').textContent = streak;
+    }
+    
+    async function clearHistory() {
+      if (!confirm('Are you sure you want to clear all workout history? This cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        const historyResult = await window.storage.list('workout:');
+        
+        if (historyResult && historyResult.keys) {
+          for (const key of historyResult.keys) {
+            await window.storage.delete(key);
+          }
+        }
+        
+        showToast('History cleared');
+        await loadHistory();
+      } catch (error) {
+        console.error('Error clearing history:', error);
+        showToast('Error clearing history');
+      }
+    }
+    
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'toastIn 0.3s ease-out reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+    
+    // Initialize
+    renderWarmup();
+    renderSwings();
+    renderGetUps();
+    renderCooldown();
+    loadHistory();
+  </script>
+</body>
+</html>

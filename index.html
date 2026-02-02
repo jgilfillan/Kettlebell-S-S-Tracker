@@ -471,6 +471,35 @@
   </div>
 
   <script>
+    // Initialize storage API using localStorage
+    window.storage = {
+      async list(prefix) {
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key.startsWith(prefix)) {
+            keys.push(key);
+          }
+        }
+        return { keys };
+      },
+      
+      async get(key) {
+        const value = localStorage.getItem(key);
+        return value ? { value } : null;
+      },
+      
+      async set(key, value) {
+        localStorage.setItem(key, value);
+        return true;
+      },
+      
+      async delete(key) {
+        localStorage.removeItem(key);
+        return true;
+      }
+    };
+    
     const warmupExercises = [
       'Prying Goblet Squat (5 reps)',
       'Hip Bridge (5 reps)',

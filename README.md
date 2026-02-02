@@ -6,7 +6,7 @@ A simple, elegant web application for tracking your progress through Pavel Tsats
 
 This app can be accessed in two ways:
 
-1. **GitHub Pages** (if deployed): Visit `https://jgilfillan.github.io/Kettlebell-S-S-Tracker/`
+1. **GitHub Pages**: Visit `https://jgilfillan.github.io/Kettlebell-S-S-Tracker/` (Note: GitHub Pages must be enabled in repository settings)
 2. **Local Use**: Download or clone this repository and open `index.html` in your web browser
 
 ### Running Locally
@@ -73,7 +73,7 @@ Along with warmup and cooldown stretches, this creates a complete, time-efficien
   - **Total Workouts**: Number of completed sessions
   - **Average Score**: Your average workout score
   - **Best Score**: Your highest score achieved
-  - **Current Streak**: Consecutive days with workouts
+  - **Current Streak**: Number of consecutive calendar days with at least one workout
 
 - The **Workout History** section displays all your past sessions with dates and scores
 

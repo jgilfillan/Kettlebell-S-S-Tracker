@@ -673,6 +673,9 @@
     
     function applyDefaultSwingWeight() {
       const defaultWeight = parseInt(document.getElementById('swingsDefaultWeight').value);
+      if (isNaN(defaultWeight) || defaultWeight < 8 || defaultWeight > 48) {
+        return;
+      }
       workoutData.swings.forEach((set) => {
         set.weight = defaultWeight;
       });
@@ -690,6 +693,9 @@
     
     function applyDefaultGetUpWeight() {
       const defaultWeight = parseInt(document.getElementById('getUpsDefaultWeight').value);
+      if (isNaN(defaultWeight) || defaultWeight < 8 || defaultWeight > 48) {
+        return;
+      }
       workoutData.getUps.forEach((set) => {
         set.weight = defaultWeight;
       });

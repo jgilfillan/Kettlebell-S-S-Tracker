@@ -63,10 +63,34 @@ Along with warmup and cooldown stretches, this creates a complete, time-efficien
 
 ### 5. **Save Your Workout**
 - Click the **"Complete Workout"** button when finished
-- Your workout will be saved with a score based on:
-  - Completion of warmup and cooldown exercises
-  - Number of completed sets
-  - Weight used (heavier weights = higher score)
+- Your workout will be saved with an automatically calculated score
+
+#### How Scoring Works
+
+The scoring system rewards both completion and progression:
+
+- **Warmup**: 2 points per exercise (10 points total)
+  - Complete all 5 warmup exercises for the full 10 points
+  
+- **Swings**: 5 points per set + weight bonus (50-70+ points possible)
+  - Base: 5 points per completed set
+  - Weight bonus: +0.25 points for every 4kg above 16kg
+  - Example: 24kg swing set = 5 + (24-16)/4 = 7 points
+  - Complete all 10 sets at 24kg = 70 points
+  
+- **Get-Ups**: 5 points per set + weight bonus (50-70+ points possible)
+  - Base: 5 points per completed get-up
+  - Weight bonus: +0.25 points for every 4kg above 16kg
+  - Example: 16kg get-up = 5 points, 24kg get-up = 7 points
+  - Complete all 10 get-ups at 24kg = 70 points
+  
+- **Cooldown**: 2.5 points per stretch (10 points total)
+  - Complete all 4 cooldown stretches for the full 10 points
+
+**Maximum Possible Score**: 120+ points (with standard weights), higher with heavier weights
+
+**Perfect Workout Example**: 
+- All warmups (10) + All swings at 24kg (70) + All get-ups at 24kg (70) + All cooldowns (10) = **160 points**
 
 ### 6. **View Your Progress**
 - The stats bar at the top shows:

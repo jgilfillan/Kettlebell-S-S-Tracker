@@ -74,14 +74,14 @@ The scoring system rewards both completion and progression:
   
 - **Swings**: 5 points per set + weight bonus (50-70+ points possible)
   - Base: 5 points per completed set
-  - Weight bonus: +0.25 points for every 4kg above 16kg
-  - Example: 24kg swing set = 5 + (24-16)/4 = 7 points
+  - Weight bonus: (weight - 16kg) / 4
+  - Example: 24kg swing = 5 + (24-16)/4 = 5 + 2 = **7 points**
   - Complete all 10 sets at 24kg = 70 points
   
 - **Get-Ups**: 5 points per set + weight bonus (50-70+ points possible)
   - Base: 5 points per completed get-up
-  - Weight bonus: +0.25 points for every 4kg above 16kg
-  - Example: 16kg get-up = 5 points, 24kg get-up = 7 points
+  - Weight bonus: (weight - 16kg) / 4
+  - Example: 16kg get-up = 5 + 0 = **5 points**, 24kg get-up = 5 + 2 = **7 points**
   - Complete all 10 get-ups at 24kg = 70 points
   
 - **Cooldown**: 2.5 points per stretch (10 points total)

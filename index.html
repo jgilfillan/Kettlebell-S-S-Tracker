@@ -477,7 +477,7 @@
         const keys = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key.startsWith(prefix)) {
+          if (key && key.startsWith(prefix)) {
             keys.push(key);
           }
         }
@@ -486,12 +486,17 @@
       
       async get(key) {
         const value = localStorage.getItem(key);
-        return value ? { value } : null;
+        return value !== null ? { value } : null;
       },
       
       async set(key, value) {
-        localStorage.setItem(key, value);
-        return true;
+        try {
+          localStorage.setItem(key, value);
+          return true;
+        } catch (error) {
+          console.error('Storage error:', error);
+          throw error;
+        }
       },
       
       async delete(key) {

@@ -1131,9 +1131,10 @@
     class IntervalTimer {
       constructor(type) {
         this.type = type; // 'swings' or 'getups'
+        this.maxSets = 10; // total sets for this exercise
         this.workTime = 30; // default 30 seconds
         this.restTime = 0; // default 0 seconds
-        this.currentTime = 30;
+        this.currentTime = this.workTime;
         this.isRunning = false;
         this.isResting = false;
         this.currentSet = 1;
@@ -1189,10 +1190,9 @@
             this.currentTime = this.workTime;
             
             // Check if we've completed all sets
-            const maxSets = this.type === 'swings' ? 10 : 10;
-            if (this.currentSet > maxSets) {
+            if (this.currentSet > this.maxSets) {
               this.stop();
-              this.currentSet = maxSets;
+              this.currentSet = this.maxSets;
               showToast(`${this.type === 'swings' ? 'Swings' : 'Get-Ups'} complete!`);
             }
           } else {
@@ -1206,10 +1206,9 @@
               this.currentSet++;
               this.currentTime = this.workTime;
               
-              const maxSets = this.type === 'swings' ? 10 : 10;
-              if (this.currentSet > maxSets) {
+              if (this.currentSet > this.maxSets) {
                 this.stop();
-                this.currentSet = maxSets;
+                this.currentSet = this.maxSets;
                 showToast(`${this.type === 'swings' ? 'Swings' : 'Get-Ups'} complete!`);
               }
             }
@@ -1239,15 +1238,14 @@
         }
         
         if (status) {
-          const maxSets = this.type === 'swings' ? 10 : 10;
           if (this.isRunning) {
             if (this.isResting) {
-              status.textContent = `Set ${this.currentSet - 1}/${maxSets} - Rest`;
+              status.textContent = `Set ${this.currentSet - 1}/${this.maxSets} - Rest`;
             } else {
-              status.textContent = `Set ${this.currentSet}/${maxSets} - Working`;
+              status.textContent = `Set ${this.currentSet}/${this.maxSets} - Working`;
             }
           } else {
-            status.textContent = `Ready - Set ${this.currentSet}/${maxSets}`;
+            status.textContent = `Ready - Set ${this.currentSet}/${this.maxSets}`;
           }
         }
       }

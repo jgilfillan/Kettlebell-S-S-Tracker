@@ -156,6 +156,59 @@
       letter-spacing: 1px;
     }
     
+    .default-weight-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      padding: 12px;
+      background: rgba(255, 215, 0, 0.1);
+      border-radius: 6px;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+    
+    .default-weight-control label {
+      font-size: 0.9rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .default-weight-control input[type="number"] {
+      width: 80px;
+      padding: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: 'Roboto Condensed', sans-serif;
+    }
+    
+    .default-weight-control button {
+      padding: 8px 16px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: 'Roboto Condensed', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+    
+    .default-weight-control button:hover {
+      background: var(--primary);
+      transform: scale(1.05);
+    }
+    
+    .default-weight-control button:active {
+      transform: scale(0.98);
+    }
+    
     .set-controls {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -549,7 +602,13 @@
     
     function renderSwings() {
       const container = document.getElementById('swingsList');
-      container.innerHTML = '<div class="exercise-group"><div class="exercise-name">10 Sets x 10 Reps</div><div class="set-controls">' +
+      container.innerHTML = '<div class="exercise-group"><div class="exercise-name">10 Sets x 10 Reps</div>' +
+        '<div class="default-weight-control">' +
+        '<label>Default Weight (kg):</label>' +
+        '<input type="number" id="swingsDefaultWeight" value="24" min="8" max="48" step="4">' +
+        '<button onclick="applyDefaultSwingWeight()">Apply to All Sets</button>' +
+        '</div>' +
+        '<div class="set-controls">' +
         workoutData.swings.map((set, idx) => `
           <div class="set-item ${set.completed ? 'completed' : ''}">
             <label>Set ${set.set}</label>
@@ -566,7 +625,13 @@
     
     function renderGetUps() {
       const container = document.getElementById('getUpsList');
-      container.innerHTML = '<div class="exercise-group"><div class="exercise-name">10 Get-Ups (5L / 5R)</div><div class="set-controls">' +
+      container.innerHTML = '<div class="exercise-group"><div class="exercise-name">10 Get-Ups (5L / 5R)</div>' +
+        '<div class="default-weight-control">' +
+        '<label>Default Weight (kg):</label>' +
+        '<input type="number" id="getUpsDefaultWeight" value="16" min="8" max="48" step="4">' +
+        '<button onclick="applyDefaultGetUpWeight()">Apply to All Sets</button>' +
+        '</div>' +
+        '<div class="set-controls">' +
         workoutData.getUps.map((set, idx) => `
           <div class="set-item ${set.completed ? 'completed' : ''}">
             <label>Set ${set.set} (${set.side})</label>
@@ -606,6 +671,14 @@
       workoutData.swings[idx].weight = parseInt(weight);
     }
     
+    function applyDefaultSwingWeight() {
+      const defaultWeight = parseInt(document.getElementById('swingsDefaultWeight').value);
+      workoutData.swings.forEach((set) => {
+        set.weight = defaultWeight;
+      });
+      renderSwings();
+    }
+    
     function toggleSwingComplete(idx) {
       workoutData.swings[idx].completed = !workoutData.swings[idx].completed;
       renderSwings();
@@ -613,6 +686,14 @@
     
     function updateGetUpWeight(idx, weight) {
       workoutData.getUps[idx].weight = parseInt(weight);
+    }
+    
+    function applyDefaultGetUpWeight() {
+      const defaultWeight = parseInt(document.getElementById('getUpsDefaultWeight').value);
+      workoutData.getUps.forEach((set) => {
+        set.weight = defaultWeight;
+      });
+      renderGetUps();
     }
     
     function toggleGetUpComplete(idx) {

@@ -815,7 +815,7 @@
             <label>Set ${set.set}</label>
             <input type="number" value="${set.weight}" min="8" max="48" step="4"
                    onchange="updateSwingWeight(${idx}, this.value)">
-            <select value="${set.swingType}" onchange="updateSwingType(${idx}, this.value)">
+            <select onchange="updateSwingType(${idx}, this.value)">
               <option value="two-handed" ${set.swingType === 'two-handed' ? 'selected' : ''}>2H</option>
               <option value="one-handed" ${set.swingType === 'one-handed' ? 'selected' : ''}>1H</option>
             </select>

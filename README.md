@@ -147,7 +147,7 @@ To enable Google Sign-In and cross-device sync, you need to set up a Firebase pr
      apiKey: "your-actual-api-key",
      authDomain: "your-project-id.firebaseapp.com",
      projectId: "your-project-id",
-     storageBucket: "your-project-id.firebasestorage.app",
+     storageBucket: "your-project-id.appspot.com",
      messagingSenderId: "your-sender-id",
      appId: "your-app-id"
    };

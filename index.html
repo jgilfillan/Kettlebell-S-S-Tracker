@@ -791,7 +791,7 @@
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
       projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
       messagingSenderId: "YOUR_SENDER_ID",
       appId: "YOUR_APP_ID"
     };
@@ -845,7 +845,7 @@
       } catch (error) {
         console.error('Sign-in error:', error);
         if (error.code !== 'auth/popup-closed-by-user') {
-          showToast('Sign-in failed. Please try again.');
+          showToast('Sign-in failed: ' + (error.message || 'Unknown error'));
         }
       }
     }
@@ -856,7 +856,7 @@
         await firebaseAuth.signOut();
       } catch (error) {
         console.error('Sign-out error:', error);
-        showToast('Sign-out failed.');
+        showToast('Sign-out failed: ' + (error.message || 'Unknown error'));
       }
     }
 
@@ -885,7 +885,14 @@
 
         await batch.commit();
 
-        // Clear local workout data after successful sync
+        // Verify sync by checking one document exists in Firestore
+        const verifyDoc = await userWorkoutsRef.doc(localKeys[0].replace('workout:', '')).get();
+        if (!verifyDoc.exists) {
+          console.warn('Sync verification failed, keeping local data');
+          return;
+        }
+
+        // Clear local workout data after verified sync
         for (const key of localKeys) {
           localStorage.removeItem(key);
         }

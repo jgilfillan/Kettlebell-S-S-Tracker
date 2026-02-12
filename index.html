@@ -614,6 +614,88 @@
       text-transform: uppercase;
       letter-spacing: 1px;
     }
+
+    .auth-container {
+      position: absolute;
+      top: 10px;
+      right: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .auth-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .auth-user img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+    }
+
+    .auth-user-name {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .auth-btn {
+      padding: 8px 16px;
+      font-family: 'Roboto Condensed', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: var(--surface);
+      color: var(--text);
+      flex: none;
+    }
+
+    .auth-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .auth-btn-signin {
+      background: rgba(255, 215, 0, 0.1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .auth-btn-signin:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .sync-status {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: 5px;
+    }
+
+    .sync-status.syncing {
+      color: var(--accent);
+    }
+
+    .sync-status.synced {
+      color: var(--success);
+    }
+
+    .sync-status.error {
+      color: var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -621,6 +703,14 @@
     <header>
       <h1>Simple & Sinister</h1>
       <div class="subtitle">Kettlebell Progress Tracker</div>
+      <div class="auth-container" id="authContainer">
+        <button class="auth-btn auth-btn-signin" id="signInBtn" onclick="signInWithGoogle()" style="display: none;">Sign In with Google</button>
+        <div class="auth-user" id="userInfo" style="display: none;">
+          <img id="userPhoto" src="" alt="User">
+          <span class="auth-user-name" id="userName"></span>
+        </div>
+        <button class="auth-btn" id="signOutBtn" onclick="signOutUser()" style="display: none;">Sign Out</button>
+      </div>
     </header>
     
     <div class="stats-bar">
@@ -688,9 +778,202 @@
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/11.3.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.3.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore-compat.js"></script>
   <script>
-    // Initialize storage API using localStorage
-    window.storage = {
+    // ========================
+    // Firebase Configuration
+    // ========================
+    // Replace these placeholder values with your own Firebase project config.
+    // See README.md for setup instructions.
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    let firebaseApp = null;
+    let firebaseAuth = null;
+    let firebaseDb = null;
+    let currentUser = null;
+    let firebaseReady = false;
+
+    // Initialize Firebase only if configured
+    if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+      try {
+        firebaseApp = firebase.initializeApp(firebaseConfig);
+        firebaseAuth = firebase.auth();
+        firebaseDb = firebase.firestore();
+        firebaseReady = true;
+      } catch (error) {
+        console.warn('Firebase initialization failed:', error);
+      }
+    }
+
+    // ========================
+    // Authentication
+    // ========================
+    function updateAuthUI(user) {
+      const signInBtn = document.getElementById('signInBtn');
+      const signOutBtn = document.getElementById('signOutBtn');
+      const userInfo = document.getElementById('userInfo');
+      const userPhoto = document.getElementById('userPhoto');
+      const userName = document.getElementById('userName');
+
+      if (user) {
+        signInBtn.style.display = 'none';
+        userInfo.style.display = 'flex';
+        signOutBtn.style.display = 'block';
+        userPhoto.src = user.photoURL || '';
+        userName.textContent = user.displayName || user.email || '';
+      } else {
+        signInBtn.style.display = firebaseReady ? 'block' : 'none';
+        userInfo.style.display = 'none';
+        signOutBtn.style.display = 'none';
+      }
+    }
+
+    async function signInWithGoogle() {
+      if (!firebaseReady) return;
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await firebaseAuth.signInWithPopup(provider);
+      } catch (error) {
+        console.error('Sign-in error:', error);
+        if (error.code !== 'auth/popup-closed-by-user') {
+          showToast('Sign-in failed. Please try again.');
+        }
+      }
+    }
+
+    async function signOutUser() {
+      if (!firebaseReady) return;
+      try {
+        await firebaseAuth.signOut();
+      } catch (error) {
+        console.error('Sign-out error:', error);
+        showToast('Sign-out failed.');
+      }
+    }
+
+    async function syncLocalDataToCloud() {
+      if (!currentUser || !firebaseDb) return;
+      try {
+        const localKeys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('workout:')) {
+            localKeys.push(key);
+          }
+        }
+        if (localKeys.length === 0) return;
+
+        const batch = firebaseDb.batch();
+        const userWorkoutsRef = firebaseDb.collection('users').doc(currentUser.uid).collection('workouts');
+
+        for (const key of localKeys) {
+          const value = localStorage.getItem(key);
+          if (value) {
+            const docId = key.replace('workout:', '');
+            batch.set(userWorkoutsRef.doc(docId), { data: value }, { merge: true });
+          }
+        }
+
+        await batch.commit();
+
+        // Clear local workout data after successful sync
+        for (const key of localKeys) {
+          localStorage.removeItem(key);
+        }
+        showToast(`Synced ${localKeys.length} workout(s) to cloud`);
+      } catch (error) {
+        console.error('Sync error:', error);
+      }
+    }
+
+    // Listen for auth state changes
+    if (firebaseReady) {
+      firebaseAuth.onAuthStateChanged(async (user) => {
+        currentUser = user;
+        updateAuthUI(user);
+        if (user) {
+          await syncLocalDataToCloud();
+        }
+        await loadHistory();
+      });
+    }
+
+    // ========================
+    // Storage API
+    // ========================
+    // Firestore-backed storage (used when signed in)
+    const firestoreStorage = {
+      async list(prefix) {
+        if (!currentUser || !firebaseDb) return { keys: [] };
+        try {
+          const snapshot = await firebaseDb
+            .collection('users').doc(currentUser.uid)
+            .collection('workouts').get();
+          const keys = snapshot.docs.map(doc => `workout:${doc.id}`);
+          return { keys: keys.filter(k => k.startsWith(prefix)) };
+        } catch (error) {
+          console.error('Firestore list error:', error);
+          return { keys: [] };
+        }
+      },
+
+      async get(key) {
+        if (!currentUser || !firebaseDb) return null;
+        try {
+          const docId = key.replace('workout:', '');
+          const doc = await firebaseDb
+            .collection('users').doc(currentUser.uid)
+            .collection('workouts').doc(docId).get();
+          if (doc.exists) {
+            return { value: doc.data().data };
+          }
+          return null;
+        } catch (error) {
+          console.error('Firestore get error:', error);
+          return null;
+        }
+      },
+
+      async set(key, value) {
+        if (!currentUser || !firebaseDb) return false;
+        try {
+          const docId = key.replace('workout:', '');
+          await firebaseDb
+            .collection('users').doc(currentUser.uid)
+            .collection('workouts').doc(docId).set({ data: value });
+          return true;
+        } catch (error) {
+          console.error('Firestore set error:', error);
+          throw error;
+        }
+      },
+
+      async delete(key) {
+        if (!currentUser || !firebaseDb) return false;
+        try {
+          const docId = key.replace('workout:', '');
+          await firebaseDb
+            .collection('users').doc(currentUser.uid)
+            .collection('workouts').doc(docId).delete();
+          return true;
+        } catch (error) {
+          console.error('Firestore delete error:', error);
+          return false;
+        }
+      }
+    };
+
+    // localStorage-backed storage (used when signed out)
+    const localStorageBackend = {
       async list(prefix) {
         const keys = [];
         for (let i = 0; i < localStorage.length; i++) {
@@ -701,12 +984,12 @@
         }
         return { keys };
       },
-      
+
       async get(key) {
         const value = localStorage.getItem(key);
         return value !== null ? { value } : null;
       },
-      
+
       async set(key, value) {
         try {
           localStorage.setItem(key, value);
@@ -716,10 +999,26 @@
           throw error;
         }
       },
-      
+
       async delete(key) {
         localStorage.removeItem(key);
         return true;
+      }
+    };
+
+    // Initialize storage API - delegates to the appropriate backend
+    window.storage = {
+      async list(prefix) {
+        return currentUser ? firestoreStorage.list(prefix) : localStorageBackend.list(prefix);
+      },
+      async get(key) {
+        return currentUser ? firestoreStorage.get(key) : localStorageBackend.get(key);
+      },
+      async set(key, value) {
+        return currentUser ? firestoreStorage.set(key, value) : localStorageBackend.set(key, value);
+      },
+      async delete(key) {
+        return currentUser ? firestoreStorage.delete(key) : localStorageBackend.delete(key);
       }
     };
     
@@ -1352,7 +1651,12 @@
     renderSwings();
     renderGetUps();
     renderCooldown();
-    loadHistory();
+    // Only load history here if Firebase is not active;
+    // otherwise onAuthStateChanged will trigger it.
+    if (!firebaseReady) {
+      updateAuthUI(null);
+      loadHistory();
+    }
   </script>
 </body>
 </html>

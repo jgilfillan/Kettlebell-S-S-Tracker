@@ -114,15 +114,67 @@ The scoring system rewards both completion and progression:
 
 ## 💾 Data Storage
 
-Your workout data is stored locally in your browser using the Web Storage API. This means:
+Your workout data can be stored in two ways:
+
+### Local Storage (Default)
+When not signed in, data is stored locally in your browser using the Web Storage API:
 - ✅ Your data stays private on your device
 - ✅ No internet connection required after initial load
 - ✅ Data persists between sessions
 - ⚠️ Clearing browser data will delete your workout history
+- ⚠️ Data is not accessible from other devices
+
+### Cloud Storage (With Google Sign-In)
+When signed in with Google, data is stored in Firebase Firestore:
+- ✅ Access your workouts from any device
+- ✅ Data is backed up in the cloud
+- ✅ Automatic sync when you sign in
+- ✅ Local workouts are migrated to the cloud on first sign-in
+
+## 🔐 Google Authentication Setup
+
+To enable Google Sign-In and cross-device sync, you need to set up a Firebase project:
+
+1. Go to the [Firebase Console](https://console.firebase.google.com/)
+2. Click **"Add project"** and follow the prompts
+3. In your project, go to **Authentication** → **Sign-in method** → enable **Google**
+4. Go to **Firestore Database** → **Create database** (start in test mode or configure security rules)
+5. Go to **Project Settings** → **General** → scroll to **"Your apps"** → click the web icon (`</>`)
+6. Register your app and copy the Firebase config object
+7. Open `index.html` and replace the placeholder values in `firebaseConfig`:
+   ```javascript
+   const firebaseConfig = {
+     apiKey: "your-actual-api-key",
+     authDomain: "your-project-id.firebaseapp.com",
+     projectId: "your-project-id",
+     storageBucket: "your-project-id.appspot.com",
+     messagingSenderId: "your-sender-id",
+     appId: "your-app-id"
+   };
+   ```
+8. If hosting on GitHub Pages, add your GitHub Pages URL to **Authentication** → **Settings** → **Authorized domains**
+
+### Recommended Firestore Security Rules
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/workouts/{workoutId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+This ensures each user can only read and write their own workout data.
 
 ## 🎨 Features
 
 - **Clean, modern interface** with dark theme
+- **Google Sign-In** for cross-device data sync
+- **Cloud storage** with Firebase Firestore (when signed in)
+- **Offline support** with localStorage fallback (when signed out)
 - **Real-time progress tracking** with visual feedback
 - **Automatic scoring system** that rewards consistency and progression
 - **Workout history** to track your journey
@@ -141,9 +193,10 @@ Your workout data is stored locally in your browser using the Web Storage API. T
 
 This is a single-page application built with:
 - Pure HTML, CSS, and JavaScript
-- No external dependencies or frameworks
+- Firebase Authentication (Google Sign-In)
+- Firebase Firestore (cloud data storage)
 - Lightweight and fast
-- Works offline after initial load
+- Works offline after initial load (localStorage fallback when not signed in)
 
 ## 📄 License
 

@@ -47,8 +47,11 @@ Along with warmup and cooldown stretches, this creates a complete, time-efficien
 ### 2. **Track Your Swings**
 - For each of the 10 sets:
   - Adjust the weight (in kg) if needed
+  - Select swing type (Two-Handed or One-Handed)
   - Check the "Done" box after completing the set
 - Default weight is 24kg
+- Default swing type is Two-Handed
+- Use the "Apply to All Sets" buttons to quickly set all sets to the same weight or swing type
 
 ### 3. **Track Your Get-Ups**
 - For each of the 10 get-ups (5 left, 5 right):
@@ -72,11 +75,14 @@ The scoring system rewards both completion and progression:
 - **Warmup**: 2 points per exercise (10 points total)
   - Complete all 5 warmup exercises for the full 10 points
   
-- **Swings**: 5 points per set + weight bonus (50-70+ points possible)
+- **Swings**: 5 points per set + weight bonus + type bonus (50-90+ points possible)
   - Base: 5 points per completed set
   - Weight bonus: (weight - 16kg) / 4
-  - Example: 24kg swing = 5 + (24-16)/4 = 5 + 2 = **7 points**
-  - Complete all 10 sets at 24kg = 70 points
+  - Type bonus: +2 points for one-handed swings
+  - Example: 24kg two-handed swing = 5 + (24-16)/4 + 0 = **7 points**
+  - Example: 24kg one-handed swing = 5 + (24-16)/4 + 2 = **9 points**
+  - Complete all 10 sets at 24kg two-handed = 70 points
+  - Complete all 10 sets at 24kg one-handed = 90 points
   
 - **Get-Ups**: 5 points per set + weight bonus (50-70+ points possible)
   - Base: 5 points per completed get-up
@@ -87,10 +93,11 @@ The scoring system rewards both completion and progression:
 - **Cooldown**: 2.5 points per stretch (10 points total)
   - Complete all 4 cooldown stretches for the full 10 points
 
-**Maximum Possible Score**: 120+ points (with standard weights), higher with heavier weights
+**Maximum Possible Score**: 140+ points (with standard weights and two-handed swings), higher with heavier weights or one-handed swings
 
-**Perfect Workout Example**: 
-- All warmups (10) + All swings at 24kg (70) + All get-ups at 24kg (70) + All cooldowns (10) = **160 points**
+**Perfect Workout Examples**: 
+- All warmups (10) + All swings at 24kg two-handed (70) + All get-ups at 24kg (70) + All cooldowns (10) = **160 points**
+- All warmups (10) + All swings at 24kg one-handed (90) + All get-ups at 24kg (70) + All cooldowns (10) = **180 points**
 
 ### 6. **View Your Progress**
 - The stats bar at the top shows:

@@ -743,6 +743,7 @@
       swings: Array(10).fill(null).map((_, i) => ({
         set: i + 1,
         weight: 24,
+        swingType: 'two-handed',
         completed: false
       })),
       getUps: Array(10).fill(null).map((_, i) => ({
@@ -800,12 +801,24 @@
         '<input type="number" id="swingsDefaultWeight" value="24" min="8" max="48" step="4">' +
         '<button onclick="applyDefaultSwingWeight()">Apply to All Sets</button>' +
         '</div>' +
+        '<div class="default-weight-control">' +
+        '<label>Default Swing Type:</label>' +
+        '<select id="swingsDefaultType">' +
+        '<option value="two-handed">Two-Handed</option>' +
+        '<option value="one-handed">One-Handed</option>' +
+        '</select>' +
+        '<button onclick="applyDefaultSwingType()">Apply to All Sets</button>' +
+        '</div>' +
         '<div class="set-controls">' +
         workoutData.swings.map((set, idx) => `
           <div class="set-item ${set.completed ? 'completed' : ''}">
             <label>Set ${set.set}</label>
             <input type="number" value="${set.weight}" min="8" max="48" step="4"
                    onchange="updateSwingWeight(${idx}, this.value)">
+            <select onchange="updateSwingType(${idx}, this.value)">
+              <option value="two-handed" ${set.swingType === 'two-handed' ? 'selected' : ''}>2H</option>
+              <option value="one-handed" ${set.swingType === 'one-handed' ? 'selected' : ''}>1H</option>
+            </select>
             <label class="checkbox-label">
               <input type="checkbox" ${set.completed ? 'checked' : ''}
                      onchange="toggleSwingComplete(${idx})">
@@ -903,6 +916,18 @@
       renderSwings();
     }
     
+    function updateSwingType(idx, type) {
+      workoutData.swings[idx].swingType = type;
+    }
+    
+    function applyDefaultSwingType() {
+      const defaultType = document.getElementById('swingsDefaultType').value;
+      workoutData.swings.forEach((set) => {
+        set.swingType = defaultType;
+      });
+      renderSwings();
+    }
+    
     function toggleSwingComplete(idx) {
       workoutData.swings[idx].completed = !workoutData.swings[idx].completed;
       renderSwings();
@@ -931,7 +956,7 @@
     function calculateScore() {
       // Scoring system:
       // Warmup: 10 points (2 per exercise)
-      // Swings: 50 points (5 per set, bonus for heavier weights)
+      // Swings: 50+ points (5 per set, bonus for heavier weights, bonus for one-handed)
       // Get-ups: 50 points (5 per set, bonus for heavier weights)
       // Cooldown: 10 points (2.5 per exercise)
       
@@ -945,7 +970,8 @@
         if (swing.completed) {
           const baseScore = 5;
           const weightBonus = (swing.weight - 16) / 4; // Bonus for heavier weights
-          score += baseScore + weightBonus;
+          const typeBonus = swing.swingType === 'one-handed' ? 2 : 0; // Bonus for one-handed swings
+          score += baseScore + weightBonus + typeBonus;
         }
       });
       

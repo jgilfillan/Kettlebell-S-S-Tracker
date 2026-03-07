@@ -114,11 +114,78 @@ The scoring system rewards both completion and progression:
 
 ## 💾 Data Storage
 
-Your workout data is stored locally in your browser using the Web Storage API. This means:
-- ✅ Your data stays private on your device
-- ✅ No internet connection required after initial load
-- ✅ Data persists between sessions
-- ⚠️ Clearing browser data will delete your workout history
+The app supports two storage modes:
+
+| Mode | When active | Notes |
+|------|-------------|-------|
+| **Local (localStorage)** | Firebase not configured, or user not signed in | Data stays in your browser only |
+| **Cloud (Firestore)** | Firebase configured **and** user signed in with Google | Data syncs across devices |
+
+> **Note:** Local and cloud histories are independent. Data saved before signing in will not be automatically migrated to the cloud.
+
+## 🔒 Google Authentication & Cloud Sync (optional manual setup)
+
+Follow these steps once to enable Google sign-in and persistent cloud storage:
+
+### Step 1 — Create a Firebase project
+
+1. Go to [https://console.firebase.google.com/](https://console.firebase.google.com/) and sign in.
+2. Click **Add project**, enter a name (e.g. `kettlebell-tracker`), then click **Continue** → **Create project**.
+
+### Step 2 — Add a web app
+
+1. In your project overview, click the **Web** icon (`</>`).
+2. Enter a nickname (e.g. `Kettlebell Tracker`) and click **Register app**.
+3. Firebase shows a `firebaseConfig` object — **copy all six values** (apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId).
+
+### Step 3 — Enable Google Authentication
+
+1. In the Firebase console sidebar, click **Build → Authentication**.
+2. Click **Get started**, then select the **Sign-in method** tab.
+3. Click **Google**, toggle it **Enabled**, pick a support email, then click **Save**.
+
+### Step 4 — Enable Firestore
+
+1. In the sidebar click **Build → Firestore Database**.
+2. Click **Create database**, choose **Production mode**, select a region, then click **Enable**.
+3. Navigate to the **Rules** tab and replace the default rule with:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/workouts/{workoutId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+4. Click **Publish**.
+
+### Step 5 — Add your authorised domain
+
+1. In the sidebar click **Build → Authentication → Settings → Authorized domains**.
+2. Click **Add domain** and enter the domain where the app is hosted:
+   - For GitHub Pages: `yourusername.github.io` (replace with your GitHub username)
+   - For local testing: `localhost` is already included by default
+
+### Step 6 — Paste the config into index.html
+
+Open `index.html` and find the `FIREBASE_CONFIG` block near the top of the `<script>` section (search for `YOUR_API_KEY`). Replace all six placeholder values with the ones you copied in Step 2:
+
+```js
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSy...",
+  authDomain: "my-project.firebaseapp.com",
+  projectId: "my-project",
+  storageBucket: "my-project.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abc123"
+};
+```
+
+Save the file and deploy (or reload locally). The **Sign in with Google** button will appear in the header.
 
 ## 🎨 Features
 
@@ -128,6 +195,7 @@ Your workout data is stored locally in your browser using the Web Storage API. T
 - **Workout history** to track your journey
 - **Streak tracking** to maintain motivation
 - **Responsive design** works on desktop and mobile devices
+- **Google Sign-In** with cloud sync via Firebase (optional)
 
 ## 🏋️ Tips for Success
 
@@ -141,9 +209,10 @@ Your workout data is stored locally in your browser using the Web Storage API. T
 
 This is a single-page application built with:
 - Pure HTML, CSS, and JavaScript
-- No external dependencies or frameworks
+- No build step or package manager required
 - Lightweight and fast
-- Works offline after initial load
+- Works offline after initial load (localStorage mode)
+- **Optional**: [Firebase](https://firebase.google.com/) (Authentication + Firestore) loaded from CDN for cloud sync
 
 ## 📄 License
 
